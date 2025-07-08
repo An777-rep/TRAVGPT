@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         "X-Title": "TravkaGPT"
       },
       body: JSON.stringify({
-        model: "tencent/hunyuan-a13b-instruct",
+       model: "openchat/openchat-3.5",
         messages: [{ role: "user", content: message }]
       })
     });
