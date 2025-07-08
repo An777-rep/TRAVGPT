@@ -1,3 +1,4 @@
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -14,14 +15,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+    const apiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + apiKey
+        "Authorization": "Bearer " + apiKey,
+        "HTTP-Referer": "https://travkagpt.vercel.app",
+        "X-Title": "TravkaGPT"
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "tencent/hunyuan-a13b-instruct",
         messages: [{ role: "user", content: message }]
       })
     });
@@ -33,6 +36,6 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: data.error?.message || "API error" });
     }
   } catch (err) {
-    return res.status(500).json({ error: "Request failed: " + err.message });
+    return res.status(500).json({ error: "Server error: " + err.message });
   }
 }
