@@ -18,18 +18,25 @@ export default async function handler(req, res) {
         "Authorization": Bearer ${apiKey},
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-chat", // 🚨 ВАЖНО: без ":free"
+        model: "deepseek/deepseek-chat", // ✅ Без ":free"
         messages: messages || [],
       }),
     });
 
+    const contentType = response.headers.get("content-type") || "";
+
     if (!response.ok) {
-      const text = await response.text(); // Попробуем получить ошибку как текст
-      return res.status(response.status).json({ error: OpenRouter error: ${text} });
+      const errorText = await response.text();
+      return res.status(response.status).json({
+        error: contentType.includes("application/json")
+          ? JSON.parse(errorText)
+          : { message: errorText },
+      });
     }
 
     const data = await response.json();
     res.status(200).json(data);
+
   } catch (err) {
     console.error("Ошибка сервера:", err);
     res.status(500).json({ error: "Internal server error" });
