@@ -5,34 +5,33 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.TRAVKA_GPT_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "API key not set" });
+    return res.status(500).json({ error: "API ключ не найден" });
   }
 
-  const { message } = req.body;
-  if (!message) {
-    return res.status(400).json({ error: "Message is required" });
-  }
+  const { messages } = req.body;
 
   try {
-    const apiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + apiKey
+        "Authorization": Bearer ${apiKey},
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3",
-        messages: [{ role: "user", content: message }]
-      })
+        model: "deepseek/deepseek-chat", // 🚨 ВАЖНО: без ":free"
+        messages: messages || [],
+      }),
     });
 
-    const data = await apiRes.json();
-    if (apiRes.ok) {
-      return res.status(200).json({ response: data.choices[0].message.content });
-    } else {
-      return res.status(500).json({ error: data.error?.message || "API error" });
+    if (!response.ok) {
+      const text = await response.text(); // Попробуем получить ошибку как текст
+      return res.status(response.status).json({ error: OpenRouter error: ${text} });
     }
+
+    const data = await response.json();
+    res.status(200).json(data);
   } catch (err) {
-    return res.status(500).json({ error: "Request failed: " + err.message });
+    console.error("Ошибка сервера:", err);
+    res.status(500).json({ error: "Internal server error" });
   }
 }
