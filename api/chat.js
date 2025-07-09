@@ -14,10 +14,10 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
         "HTTP-Referer": "https://travkagpt.vercel.app",
-        "X-Title": "TravkaGPT"
+        "X-Title": "GPT"
       },
       body: JSON.stringify({
-        model: model: "deepseek/deepseek-chat-v3-0324:free",
+        model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [{ role: "user", content: message }]
       })
     });
