@@ -1,78 +1,238 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html><html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TravkaGPT</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      background: #000;
-      padding: 1rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      text-align: center;
-      border-bottom: 1px solid #333;
-    }
-    #messages {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-    }
-    .msg {
-      margin: 1rem 0;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      background: #222;
-      white-space: pre-wrap;
-    }
-    .user {
-      background: #333;
-      text-align: right;
-    }
-    form {
-      display: flex;
-      padding: 0.5rem;
-      background: #000;
-      border-top: 1px solid #333;
-    }
-    textarea {
-      flex: 1;
-      resize: none;
-      background: #111;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 8px;
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-    button {
-      background: white;
-      color: black;
-      border: none;
-      margin-left: 0.5rem;
-      padding: 0 1rem;
-      border-radius: 8px;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
+    :root {
+      --bg: #0a0a0a;
+      --bg-dark: #121212;
+      --bg-light: #1f1f1f;
+      --border: #2c2c2c;
+      --accent: #ffffff;
+      --text: #f0f0f0;
+      --subtle: #888888;
+      --radius: 14px;
+    }* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+header {
+  background: var(--bg-dark);
+  padding: 1.5rem 2rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  text-align: center;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+
+#messages {
+  flex: 1;
+  padding: 1.5rem 2rem;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.msg {
+  margin: 1.2rem 0;
+  padding: 1.2rem 1.5rem;
+  border-radius: var(--radius);
+  background: var(--bg-light);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  position: relative;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+}
+
+.msg code {
+  display: block;
+  background: #101010;
+  padding: 1rem;
+  margin-top: 1rem;
+  border-radius: 10px;
+  font-family: monospace;
+  white-space: pre;
+  overflow-x: auto;
+  position: relative;
+}
+
+.msg code .copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.user {
+  background: #181818;
+  text-align: right;
+  border-right: 4px solid var(--accent);
+}
+
+form {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background: var(--bg-dark);
+  border-top: 1px solid var(--border);
+}
+
+textarea {
+  flex: 1;
+  resize: none;
+  background: var(--bg-light);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.05);
+}
+
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+button {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 0 1.5rem;
+  border-radius: var(--radius);
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+}
+
+button:hover:not(:disabled) {
+  background: #ddd;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
   </style>
 </head>
 <body>
   <header>TravkaGPT</header>
   <div id="messages"></div>
   <form id="form">
-    <textarea id="input" rows="2" placeholder="Введите сообщение..."></textarea>
-    <button type="submit">➤</button>
-  </form>
-  <script src="script.js"></script>
-</body>
+    <textarea id="input" rows="2" placeholder="Введите сообщение..." autocomplete="off"></textarea>
+    <button type="submit" id="submitBtn">➤</button>
+  </form>  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>  <script>
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    const messages = document.getElementById('messages');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function appendMessage(content, className = '') {
+      const div = document.createElement('div');
+      div.className = 'msg ' + className;
+      div.innerHTML = content;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function typeText(element, html, delay = 10) {
+      element.innerHTML = '';
+      let tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      const nodes = [...tmp.childNodes];
+for (let node of nodes) {
+        if (node.nodeType === 3) {
+          for (let char of node.textContent) {
+            element.innerHTML += char;
+            await sleep(delay);
+          }
+        } else {
+          element.appendChild(node);
+        }
+      }
+      highlightAndEnableCopy(element);
+    }
+
+    function highlightAndEnableCopy(container) {
+      hljs.highlightAll();
+      container.querySelectorAll('pre code').forEach(code => {
+        if (!code.querySelector('.copy-btn')) {
+          const btn = document.createElement('button');
+          btn.textContent = 'Скопировать';
+          btn.className = 'copy-btn';
+          btn.onclick = () => {
+            navigator.clipboard.writeText(code.innerText);
+            btn.textContent = 'Скопировано!';
+            setTimeout(() => btn.textContent = 'Скопировать', 1500);
+          };
+          code.appendChild(btn);
+        }
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userInput = input.value.trim();
+      if (!userInput) return;
+
+      input.disabled = true;
+      submitBtn.disabled = true;
+
+      appendMessage(userInput, 'user');
+      input.value = '';
+
+      const botMsg = appendMessage('', '');
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: userInput })
+        });
+        const data = await res.json();
+        if (data.response) {
+          const html = marked.parse(data.response);
+          await typeText(botMsg, html);
+        } else {
+          botMsg.textContent = 'Ошибка: ' + (data.error || 'Нет ответа');
+        }
+      } catch (err) {
+        botMsg.textContent = 'Ошибка: ' + err.message;
+      }
+
+      input.disabled = false;
+      submitBtn.disabled = false;
+      input.focus();
+    });
+  </script></body>
 </html>
