@@ -14,26 +14,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + apiKey,
+        "Authorization": Bearer ${apiKey},
         "HTTP-Referer": "https://travkagpt.vercel.app",
         "X-Title": "TravkaGPT"
       },
       body: JSON.stringify({
-        model: "model: "deepseek-ai/deepseek-chat",",
+        model: "deepseek-ai/deepseek-chat",
         messages: [{ role: "user", content: message }]
       })
     });
 
-    const data = await apiRes.json();
-    if (apiRes.ok) {
-      return res.status(200).json({ response: data.choices[0].message.content });
-    } else {
-      return res.status(500).json({ error: data.error?.message || "API error" });
+    const text = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      return res.status(500).json({ error: "Ответ не JSON: " + text });
     }
+
+    if (!response.ok) {
+      return res.status(500).json({ error: data.error?.message || text });
+    }
+
+    return res.status(200).json({ response: data.choices[0].message.content });
   } catch (err) {
     return res.status(500).json({ error: "Request failed: " + err.message });
   }
