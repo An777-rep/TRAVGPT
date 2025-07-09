@@ -17,10 +17,7 @@ export default async function handler(req, res) {
         "X-Title": "TravkaGPT"
       },
       body: JSON.stringify({
-        body: JSON.stringify({
-  model: "mistralai/mistral-7b-instruct:free",
-  messages: [{ role: "user", content: message }]
-}),
+        model: "deepseek/deepseek-r1:free",
         messages: [{ role: "user", content: message }]
       })
     });
